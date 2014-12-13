@@ -36,7 +36,7 @@ angular.module('starter.controllers', [])
 .controller('PlaylistsCtrl', function($scope) {
   $scope.playlists = [
     { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
+    { title: 'Hip Hop', id: 2 },
     { title: 'Dubstep', id: 3 },
     { title: 'Indie', id: 4 },
     { title: 'Rap', id: 5 },
@@ -44,5 +44,15 @@ angular.module('starter.controllers', [])
   ];
 })
 
-.controller('PlaylistCtrl', function($scope, $stateParams) {
+.controller('PlaylistCtrl', function($scope, $log, $stateParams) {
+      $log.log("List devices ... ", bluetoothSerial);
+
+      $scope.devices = bluetoothSerial.list(
+        function(devices) {
+          $log.log("List devices success: ", devices);
+          $scope.devices = devices;
+        },
+        function(error) {
+          $log.log("Error list devices: ", error);
+        });
 });
