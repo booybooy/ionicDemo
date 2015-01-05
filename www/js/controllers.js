@@ -33,7 +33,7 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('PlaylistsCtrl', function($scope) {
+.controller('PlaylistsCtrl', ['$scope', '$log', '$ionicModal', function($scope, $log, $ionicModal) {
   $scope.playlists = [
     { title: 'Reggae', id: 1 },
     { title: 'Hip Hop', id: 2 },
@@ -42,15 +42,71 @@ angular.module('starter.controllers', [])
     { title: 'Rap', id: 5 },
     { title: 'Cowbell', id: 6 }
   ];
-})
 
-.controller('PlaylistCtrl', function($scope, $log, $stateParams) {
-      $log.log("List devices ... ", bluetoothSerial);
+  $scope.newPlaylist = function() {
+    $log.log("new playlist ...");
+    $scope.playlistModal.show();
+  };
+  $scope.closeNewPlaylist = function() {
+    $log.log("close newPlaylist ...");
+    $scope.playlistModal.hide();
+  };
+  $ionicModal.fromTemplateUrl('/templates/newPlaylist.html', function(modal) {
+    $scope.playlistModal = modal;
+  }, {
+    scope: $scope,
+    animation: 'slide-in-up'
+  });
 
-      $scope.devices = bluetoothSerial.list(
+  // Called when the form is submitted
+  $scope.createPlaylist = function(playlist) {
+    $scope.playlists.push({
+      title: playlist.title
+    });
+    $scope.playlistModal.hide();
+    playlist.title = "";
+  };
+
+}])
+
+.constant("deviceName", "AB Shutter 3")
+.controller('PlaylistCtrl', function($scope, $log, deviceName) {
+      $log.log("Connecting to ble device...");
+//      evothings.ble.reset(function() {
+//        $log.log("reset completed.");
+//
+//        evothings.ble.startScan(function(r) {
+//          $log.log("Scan result: ", JSON.stringify(r));
+//
+//          var res = r.rssi + " " + r.name + " " + r.address;
+//          $log.log('scan result: ' + res);
+//
+//        }, function(errorCode) {
+//          $log.log('startScan error: ' + errorCode);
+//        });
+//      }, function() {
+//        $log.log("error reseting ble.");
+//      });
+
+//TODO: figure out why ion-item is showing only 1 item
+      bluetoothSerial.list(
         function(devices) {
-          $log.log("List devices success: ", devices);
           $scope.devices = devices;
+          $log.log("List devices success: ", JSON.stringify(devices));
+          devices.forEach(function(value) {
+            if (value.name == deviceName) {
+              $log.log("Connecting to ", value.name, " ", value.address);
+              bluetoothSerial.connect(value.address,
+                function() {
+                  $log.log("Successfully connected to ", deviceName);
+                },
+                function(errMsg) {
+                  $log.log("Unable to connect to device: ", errMsg);
+                });
+            }
+          });
+
+
         },
         function(error) {
           $log.log("Error list devices: ", error);

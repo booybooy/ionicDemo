@@ -3,8 +3,9 @@
     <h1>Playlist</h1>
       <ion-content>
           <ion-list>
+
               <ion-item ng-repeat="device in devices">
-                  {{device.name}}
+                  {{device.name}} {{device.address}}
               </ion-item>
           </ion-list>
       </ion-content>
